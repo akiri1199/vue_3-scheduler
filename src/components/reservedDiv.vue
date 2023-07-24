@@ -36,7 +36,7 @@ export default defineComponent({
         width: "0px",
         height: "45px",
       },
-      isShow: false,
+      isShow: true,
       mouseXStarted: null,
       startLineNo: null,
       endLineNo: null,
@@ -72,8 +72,6 @@ export default defineComponent({
       let width = props.unitWidth * widthCnt + widthCnt * props.borderWidth;
       state.styleObject.width = width + "px";
     };
-
-
 
 
     /**
@@ -150,8 +148,6 @@ export default defineComponent({
         }
       }
     );
-
-
 
     setLeftPosition();
     setWidth();

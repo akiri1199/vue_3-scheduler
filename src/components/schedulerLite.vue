@@ -29,13 +29,13 @@
               </div>
             </div>
             <div v-if="state.isActive">
-              <div v-for="(row, index) in state.scheduleData" :key="index" :class="'timeline'"
-                :style="{ height: state.settingData.rowH + 'px' }">
-                <unit-div v-for="n in state.unitCnt" :key="'unit' + n" :row-index="index" :key-index="n" :row-data="row"
-                  :is-business="isBusiness(index, n - 1)" :is-selecting="state.isSelecting"
+              <div v-for="(row, index) in  state.scheduleData " :key="index" :class="'timeline'"
+                :style="{ height: state.settingData.rowH + 'px', display: 'flex', width: '100%' }">
+                <unit-div v-for=" n  in  state.unitCnt " :key="'unit' + n" :row-index="index" :key-index="n"
+                  :row-data="row" :is-business="isBusiness(index, n - 1)" :is-selecting="state.isSelecting"
                   :is-selecting-row-index="state.isSelectingRowIndex" :width="state.settingData.unitDivW + 'px'"
                   @mouse-down="selectStartTime" @mouse-up="selectEndTime"></unit-div>
-                <reserved-div v-for="(detail, keyNo) in row.schedule" :key="'res' + keyNo" :schedule-detail="detail"
+                <reserved-div v-for="( detail, keyNo ) in  row.schedule " :key="'res' + keyNo" :schedule-detail="detail"
                   :row-index="index" :key-no="keyNo" :start-text="detail.start" :end-text="detail.end"
                   :unit-width="state.settingData.unitDivW" :unit-height="state.settingData.rowH"
                   :title-div-width="state.settingData.titleDivW" :border-width="state.settingData.borderW"
@@ -62,9 +62,10 @@
           <span>day off</span>
         </div>
         <div :style="{ width: '100%' }">
-          <div v-for="(row, index) in state.scheduleData" :key="index" :class="'timeline title'" :style="{
+          <div v-for="( row, index ) in  state.scheduleData " :key="index" :class="'timeline title'" :style="{
             height: state.settingData.rowH + 'px', border: 'none', paddingBottom: '2px', background: '#1eaeff', borderRadius: '5px'
-          }">
+          }
+            ">
             <span>
               <input type="checkbox" :id="'checkbox-' + index" :checked="selectedRows.includes(index)"
                 @change="handleCheckboxChange(index)">
@@ -111,22 +112,27 @@ export default defineComponent({
         this.selectedRows.push(index);
         this.state.scheduleData[index].schedule.length = 0;
         this.state.scheduleData[index].noBusinessDate = true;
-        const keys = Object.keys(this.state.resultData);
-        this.state.resultData[keys[index]].length = 0;
+
       }
     }
   },
   setup(props, { emit }) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const formatedtoday = `${year}/${month}/${day}`;
+
     const state = reactive({
       settingData: {
-        startDate: "2023/07/23",
-        endDate: "2023/07/23",
+        startDate: formatedtoday,
+        endDate: formatedtoday,
         weekdayText: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
         unit: 15,//[15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
         dateDivH: 25,
         borderW: 1, // Px 
         timeDivH: 24, // Px
-        unitDivW: 17, // Px
+        unitDivW: (1.107 * props.setting.unit), // Px
         titleDivW: 7, // Percent
         rowH: 45, // Px
       },
@@ -158,14 +164,10 @@ export default defineComponent({
       state.scheduleData.push({
         title: state.settingData.weekdayText[index],
         noBusinessDate: false,
-        schedule: [
-          {
-            start: "2023/07/23 00:00",
-            end: "2023/07/23 00:00"
-          }
-        ],
+        schedule: [],
       })
     });
+
     var i = 0;
     for (const sc in props.scheduleData) {
       props.scheduleData[sc].forEach((item, index) => {
@@ -179,14 +181,13 @@ export default defineComponent({
               end_minute = end_minute % 60;
             }
             end_str = end_hour + ":" + end_minute;
-            state.scheduleData[i].schedule.push({ start: '2023/07/23 ' + item, end: '2023/07/23 ' + end_str });
+            state.scheduleData[i].schedule.push({ start: formatedtoday + " " + item, end: formatedtoday + " " + end_str });
           }
         })
 
       })
       i++;
     }
-    // console.log(state.scheduleData);
     const getHeaderTime = (n) => {
       return n % 24;
     };
@@ -248,22 +249,22 @@ export default defineComponent({
 
     const selectEndTime = (startDate) => {
       if (state.isSelecting) {
-        const keys = Object.keys(state.resultData);
-        let start_time = startDate.split(" ")[1];
-        state.resultData[keys[state.isSelectingRowIndex]].push(start_time);
+        if (startDate == undefined) {
+          let targetData =
+            state.scheduleData[state.isSelectingRowIndex].schedule[
+            state.scheduleData[state.isSelectingRowIndex].schedule.length - 1
+            ];
+          startDate = targetData.start;
+          endDate = targetData.end;
+        }
       }
       state.isSelecting = false;
       state.isSelectingRowIndex = null;
       state.isSelectingIndex = null;
       state.clearSwitch = !state.clearSwitch;
     };
-
     const deleteScheduleData = (rowIndex, keyNo) => {
       state.scheduleData[rowIndex].schedule.splice(keyNo, 1);
-      const keys = Object.keys(state.resultData);
-
-      state.resultData[keys[rowIndex]].splice(keyNo - 1, 1);
-
     };
 
     const getMinutesDiff = (date1, date2) => {
@@ -298,6 +299,12 @@ export default defineComponent({
       state.isActive = !state.isActive;
     }
     const finishEvent = () => {
+      state.scheduleData.forEach((item, index) => {
+        state.resultData[item.title].length = 0;
+        item.schedule.forEach(val => {
+          state.resultData[item.title].push(val.start.split(" ")[1])
+        })
+      })
       emit('finish-Event', state.resultData);
     }
 
