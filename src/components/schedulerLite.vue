@@ -2,9 +2,8 @@
   <div class="schedule">
     <div>
       <div class="sc-rows" :style="{ width: '7%', height: state.contentH + 'px' }">
-        <div :style="{ width: '100%', height: '70px', border: '1px #000 solid', borderRadius: '5px' }"
-          @click="toggleView"> </div>
-        <div v-if="state.isActive" :style="{ width: '100%' }">
+        <div :style="{ width: '100%', height: '70px', border: '1px #000 solid', borderRadius: '5px' }"> </div>
+        <div :style="{ width: '100%' }">
           <div v-for="(row, index) in state.scheduleData" :key="index" :class="'timeline title'" :style="{
             height: state.settingData.rowH + 'px', borderRadius: '5px', borderTop: '1px #fff solid',
           }">
@@ -28,7 +27,7 @@
                 {{ getHeaderTime(n - 1) }} : 00
               </div>
             </div>
-            <div v-if="state.isActive">
+            <div>
               <div v-for="(row, index) in  state.scheduleData " :key="index" :class="'timeline'"
                 :style="{ height: state.settingData.rowH + 'px', display: 'flex', width: '100%' }">
                 <unit-div v-for=" n  in  state.unitCnt " :key="'unit' + n" :row-index="index" :key-index="n"
@@ -55,7 +54,7 @@
           </div>
         </div>
       </div>
-      <div v-if="state.isActive" class="sc-rows"
+      <div class="sc-rows"
         :style="{ width: '3%', height: state.contentH + 'px', background: '#1eaeff', borderRadius: '5px' }">
         <div
           :style="{ width: '100%', height: '20px', color: '#000', padding: '25px 5px', borderBottom: '2px solid #efefef' }">
@@ -175,7 +174,7 @@ export default defineComponent({
           if (sc == sc_arr.title) {
             var end_str = "";
             var end_hour = parseInt(item.split(":")[0]);
-            var end_minute = parseInt(item.split(":")[1]) + state.settingData.unit;
+            var end_minute = parseInt(item.split(":")[1]) + props.setting.unit;
             if (parseInt(end_minute) > 59) {
               end_hour++;
               end_minute = end_minute % 60;
