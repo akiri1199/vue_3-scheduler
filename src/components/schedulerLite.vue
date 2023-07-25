@@ -442,7 +442,7 @@ export default defineComponent({
 }
 
 .notMe {
-  background-color: #ec920a !important;
+  background-color: #3765e3 !important;
 }
 
 
