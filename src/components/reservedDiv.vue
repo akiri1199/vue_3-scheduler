@@ -55,7 +55,7 @@ export default defineComponent({
       let shiftCnt = parseInt(leftDiff / props.unit);
       state.startLineNo = shiftCnt;
       let shiftLeft = props.unitWidth * shiftCnt + shiftCnt * props.borderWidth;
-      state.styleObject.left = shiftLeft + "px";
+      state.styleObject.left = shiftLeft - 1 + "px";
     };
     /**
      * Set the Block width pixel
@@ -80,28 +80,7 @@ export default defineComponent({
     const deleteEvent = () => {
       emit("delete-schedule-data", props.rowIndex, props.keyNo);
     };
-    /**
-     * Mouse move event for Add new schedule
-     */
-    const mousemove = (e) => {
-      if (
-        props.rowIndex == props.isSelectingRowIndex &&
-        props.keyNo == props.isSelectingIndex
-      ) {
-        if (props.isSelecting && state.mouseXStarted) {
-          let movePx = e.clientX - state.mouseXStarted;
-          let unitCnt = parseInt(movePx / props.unitWidth);
-          if (unitCnt != 0 && unitCnt < 0) {
-            state.mouseXStarted = e.clientX + props.unitWidth;
-            emit("edit-schedule-data", props.rowIndex, props.keyNo, unitCnt);
-          }
-        }
-        if (props.isSelecting && !state.mouseXStarted) {
-          state.mouseXStarted = e.clientX;
-          state.styleObject.Opacity = 0.5;
-        }
-      }
-    };
+
     /**
      * Mouse up event for Add new schedule
      */
@@ -151,13 +130,11 @@ export default defineComponent({
 
     setLeftPosition();
     setWidth();
-    state.isShow = true;
     return {
       state,
       setLeftPosition,
       setWidth,
       deleteEvent,
-      mousemove,
       mouseup,
       getMinutesDiff,
     };

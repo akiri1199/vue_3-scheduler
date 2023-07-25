@@ -14,10 +14,24 @@
       <div class="sc-main-box" :style="{ width: '90%' }">
         <div class="sc-main-scroll" :style="{ width: state.contentW + 'px' }">
           <div class="sc-main">
-            <div v-for="(index) in [0]" :key="index" :class="'timeline'"
-              :style="{ height: state.settingData.rowH + 'px' }">
-              <unit-div v-for="n in state.unitCnt" :key="'unit' + n" :row-index="index" :key-index="n"
-                :width="state.settingData.unitDivW + 'px'"></unit-div>
+            <div v-for="(row, index) in state.totalScheduleData" :key="index" :class="'timeline'"
+              :style="{ height: state.settingData.rowH + 'px', display: 'flex', width: '100%' }">
+              <unit-div v-for=" n  in  state.unitCnt " :key="'unit' + n" :row-index="index + 7" :key-index="n"
+                :row-data="row" :is-business="true" :is-selecting="state.isSelecting"
+                :is-selecting-row-index="state.isSelectingRowIndex" :width="state.settingData.unitDivW + 'px'"
+                @mouse-down="selectAllStartTime" @mouse-up="selectAllEndTime"></unit-div>
+              <reserved-div v-for="( detail, keyNo ) in  row.schedule " :key="'res' + keyNo" :schedule-detail="detail"
+                :row-index="7" :key-no="keyNo" :start-text="detail.start" :end-text="detail.end"
+                :unit-width="state.settingData.unitDivW" :unit-height="state.settingData.rowH"
+                :title-div-width="state.settingData.titleDivW" :border-width="state.settingData.borderW"
+                :min-date="state.settingData.startDate" :max-date="state.settingData.endDate"
+                :unit="state.settingData.unit" :clear-switch="state.clearSwitch" :is-selecting="state.isSelecting"
+                :is-selecting-row-index="state.isSelectingRowIndex" :is-selecting-index="state.isSelectingIndex"
+                @delete-schedule-data="deleteScheduleData" @mouse-up="selectEndTime" @click-event="
+                  $emit(
+                    'click-event',
+                  )
+                  "></reserved-div>
             </div>
             <div class="timeline" :style="{
               height: state.settingData.timeDivH + 'px',
@@ -121,13 +135,15 @@ export default defineComponent({
     const month = (today.getMonth() + 1).toString().padStart(2, '0');
     const day = today.getDate().toString().padStart(2, '0');
     const formatedtoday = `${year}/${month}/${day}`;
-
+    const formatter = new Intl.DateTimeFormat(props.setting.locale, { weekday: 'long' });
+    const dayNames = Array.from({ length: 7 }, (_, i) => formatter.format(new Date(0, 0, i)));
     const state = reactive({
       settingData: {
         startDate: formatedtoday,
         endDate: formatedtoday,
-        weekdayText: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        weekdayText: dayNames,
         unit: 60,
+        locale: 'en-GB',
         dateDivH: 25,
         borderW: 1, // Px 
         timeDivH: 24, // Px
@@ -136,15 +152,8 @@ export default defineComponent({
         rowH: 45, // Px
       },
       scheduleData: [],
-      resultData: {
-        'Monday': [],
-        'Tuesday': [],
-        'Wednesday': [],
-        'Thursday': [],
-        'Friday': [],
-        'Saturday': [],
-        'Sunday': []
-      },
+      resultData: {},
+      totalScheduleData: [],
       padding: 0,
       timeDivW: 0,
       dateDivW: 0,
@@ -159,6 +168,10 @@ export default defineComponent({
       isActive: false
     });
 
+    state.resultData = dayNames.reduce((acc, day) => {
+      acc[day] = [];
+      return acc;
+    }, {});
     [0, 1, 2, 3, 4, 5, 6].forEach(index => {
       state.scheduleData.push({
         title: state.settingData.weekdayText[index],
@@ -167,6 +180,11 @@ export default defineComponent({
       })
     });
 
+    state.totalScheduleData[0] = {
+      title: 'All',
+      noBusinessDate: false,
+      schedule: []
+    }
     var i = 0;
     for (const sc in props.scheduleData) {
       props.scheduleData[sc].forEach((item, index) => {
@@ -187,6 +205,7 @@ export default defineComponent({
       })
       i++;
     }
+
     const getHeaderTime = (n) => {
       return n % 24;
     };
@@ -224,6 +243,7 @@ export default defineComponent({
     };
 
     const selectStartTime = (rowIndex, keyIndex) => {
+
       state.isSelecting = true;
       state.isSelectingRowIndex = rowIndex;
       let addMinutes1 = (keyIndex - 1) * state.settingData.unit;
@@ -236,12 +256,19 @@ export default defineComponent({
         new Date(state.settingData.startDate),
         addMinutes2
       );
+      var k = [];
+      state.scheduleData[rowIndex].schedule.forEach(item => {
+        if (item.start == datetimeFormatter(newStartDateObj) || state.scheduleData[rowIndex].noBusinessDate == true) {
+          k.push(rowIndex);
+        }
+      })
 
-      state.scheduleData[rowIndex].schedule.push({
-        start: datetimeFormatter(newStartDateObj),
-        end: datetimeFormatter(newEndDateObj),
-      });
-
+      if (!k.includes(rowIndex) && state.scheduleData[rowIndex].noBusinessDate == false) {
+        state.scheduleData[rowIndex].schedule.push({
+          start: datetimeFormatter(newStartDateObj),
+          end: datetimeFormatter(newEndDateObj),
+        });
+      }
       state.isSelectingIndex =
         state.scheduleData[state.isSelectingRowIndex].schedule.length - 1;
     };
@@ -262,9 +289,77 @@ export default defineComponent({
       state.isSelectingIndex = null;
       state.clearSwitch = !state.clearSwitch;
     };
-    const deleteScheduleData = (rowIndex, keyNo) => {
-      state.scheduleData[rowIndex].schedule.splice(keyNo, 1);
+
+    const selectAllStartTime = (rowIndex, keyIndex) => {
+
+      state.isSelecting = true;
+      state.isSelectingRowIndex = 0;
+      let addMinutes1 = (keyIndex - 1) * state.settingData.unit;
+      let addMinutes2 = keyIndex * state.settingData.unit;
+      let newStartDateObj = addMinutes(
+        new Date(state.settingData.startDate),
+        addMinutes1
+      );
+      let newEndDateObj = addMinutes(
+        new Date(state.settingData.startDate),
+        addMinutes2
+      );
+
+      state.totalScheduleData[0].schedule.push({
+        start: datetimeFormatter(newStartDateObj),
+        end: datetimeFormatter(newEndDateObj),
+      });
+
+      state.isSelectingIndex =
+        state.scheduleData[state.isSelectingRowIndex].schedule.length - 1;
+
+      [0, 1, 2, 3, 4, 5, 6].forEach(row => {
+        selectStartTime(row, keyIndex);
+      });
+
+
     };
+
+    const selectAllEndTime = (startDate) => {
+      if (state.isSelecting) {
+        if (startDate == undefined) {
+          let targetData =
+            state.totalScheduleData[state.isSelectingRowIndex].schedule[
+            state.totalScheduleData[state.isSelectingRowIndex].schedule.length - 1
+            ];
+          startDate = targetData.start;
+          endDate = targetData.end;
+        }
+      }
+      state.isSelecting = false;
+      state.isSelectingRowIndex = null;
+      state.isSelectingIndex = null;
+      state.clearSwitch = !state.clearSwitch;
+    };
+    const deleteScheduleData = (rowIndex, keyNo) => {
+
+      if (rowIndex == 7) {
+        deleteAllScheduleData(keyNo, state.totalScheduleData[0].schedule[keyNo]);
+      } else {
+
+        state.scheduleData[rowIndex].schedule.splice(keyNo, 1);
+
+      }
+    };
+    const deleteAllScheduleData = (keyNo, key) => {
+
+      [0, 1, 2, 3, 4, 5, 6].forEach(row => {
+        state.scheduleData[row].schedule.forEach((item, index) => {
+
+          if (item.start == key.start) {
+            deleteScheduleData(row, index);
+          }
+        })
+
+      });
+      state.totalScheduleData[0].schedule.splice(keyNo, 1);
+    };
+
 
     const getMinutesDiff = (date1, date2) => {
       const diffTime = Math.abs(date2 - date1);
@@ -298,7 +393,7 @@ export default defineComponent({
       state.isActive = !state.isActive;
     }
     const finishEvent = () => {
-      state.scheduleData.forEach((item, index) => {
+      state.scheduleData.forEach((item) => {
         state.resultData[item.title].length = 0;
         item.schedule.forEach(val => {
           state.resultData[item.title].push(val.start.split(" ")[1])
@@ -315,6 +410,8 @@ export default defineComponent({
       isBusiness,
       selectStartTime,
       selectEndTime,
+      selectAllStartTime,
+      selectAllEndTime,
       deleteScheduleData,
       getMinutesDiff,
       toggleView,
