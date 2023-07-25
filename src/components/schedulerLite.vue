@@ -15,7 +15,7 @@
         <div class="sc-main-scroll" :style="{ width: state.contentW + 'px' }">
           <div class="sc-main">
             <div v-for="(row, index) in state.totalScheduleData" :key="index" :class="'timeline'"
-              :style="{ height: state.settingData.rowH + 'px', display: 'flex', width: '100%' }">
+              :style="{ height: state.settingData.rowH + 'px', display: 'flex', width: '100%', borderTop: '1px #000 solid' }">
               <unit-div v-for=" n  in  state.unitCnt " :key="'unit' + n" :row-index="index + 7" :key-index="n"
                 :row-data="row" :is-business="true" :is-selecting="state.isSelecting"
                 :is-selecting-row-index="state.isSelectingRowIndex" :width="state.settingData.unitDivW + 'px'"
