@@ -1,6 +1,6 @@
 <template>
-  <div v-if="state.isShow" :class="['sc-bar', state.isMe ? 'isMe' : 'notMe']" :style="state.styleObject"
-    @mouseup="mouseup" @click="$emit('click-event')">
+  <div v-if="state.isShow" :class="['sc-bar', 'notMe']" :style="state.styleObject" @mouseup="mouseup"
+    @click="$emit('click-event')">
     <span style="float: right; width: 100%; height: 100%; padding: 0px" @click="deleteEvent"></span>
   </div>
 </template>

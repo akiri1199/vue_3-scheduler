@@ -128,7 +128,7 @@ export default defineComponent({
         startDate: formatedtoday,
         endDate: formatedtoday,
         weekdayText: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        unit: 15,
+        unit: 60,
         dateDivH: 25,
         borderW: 1, // Px 
         timeDivH: 24, // Px

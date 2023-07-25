@@ -7,13 +7,13 @@
 import schedulerLite from "./components/schedulerLite";
 
 const divisionSetting = {
-  unit: 15, //  it is division of hour set a among 1,2,3,4,5,6,8,9,10,12,15,16,18,20,24,30,32,36,40,45,48,60
+  unit: 16, //  it is division of hour set a among 1,2,3,4,5,6,8,9,10,12,15,16,18,20,24,30,32,36,40,45,48,60
 };
 const sampleData = {   // insert saved Json data
-  Monday: ['01:30'],
+  Monday: ['01:40'],
   ThuesDay: [],
-  Wednesday: ['00:15', '03:30'],
-  Thursday: ['02:55'],
+  Wednesday: ['00:20', '03:40'],
+  Thursday: ['02:40'],
   Friday: [],
   Saturday: [],
   Sunday: []
