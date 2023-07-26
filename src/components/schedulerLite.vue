@@ -5,7 +5,7 @@
         <div :style="{ width: '100%', height: '70px', border: '1px #000 solid', borderRadius: '5px' }"> </div>
         <div :style="{ width: '100%' }">
           <div v-for="(row, index) in state.scheduleData" :key="index" :class="'timeline title'" :style="{
-            height: state.settingData.rowH + 'px', borderRadius: '5px', borderTop: '1px #fff solid',
+            height: state.settingData.rowH + 'px', borderRadius: '3px', borderTop: '1px #000 solid',
           }">
             <span>{{ row.title }}</span>
           </div>
@@ -17,16 +17,14 @@
             <div v-for="(row, index) in state.totalScheduleData" :key="index" :class="'timeline'"
               :style="{ height: state.settingData.rowH + 'px', display: 'flex', width: '100%', borderTop: '1px #000 solid' }">
               <unit-div v-for=" n  in  state.unitCnt " :key="'unit' + n" :row-index="index + 7" :key-index="n"
-                :row-data="row" :is-business="true" :is-selecting="state.isSelecting"
-                :is-selecting-row-index="state.isSelectingRowIndex" :width="state.settingData.unitDivW + 'px'"
+                :row-data="row" :is-business="true" :width="state.settingData.unitDivW + 'px'"
                 @mouse-down="selectAllStartTime" @mouse-up="selectAllEndTime"></unit-div>
               <reserved-div v-for="( detail, keyNo ) in  row.schedule " :key="'res' + keyNo" :schedule-detail="detail"
                 :row-index="7" :key-no="keyNo" :start-text="detail.start" :end-text="detail.end"
                 :unit-width="state.settingData.unitDivW" :unit-height="state.settingData.rowH"
                 :title-div-width="state.settingData.titleDivW" :border-width="state.settingData.borderW"
                 :min-date="state.settingData.startDate" :max-date="state.settingData.endDate"
-                :unit="state.settingData.unit" :clear-switch="state.clearSwitch" :is-selecting="state.isSelecting"
-                :is-selecting-row-index="state.isSelectingRowIndex" :is-selecting-index="state.isSelectingIndex"
+                :unit="state.settingData.unit" :clear-switch="state.clearSwitch"
                 @delete-schedule-data="deleteScheduleData" @mouse-up="selectEndTime" @click-event="
                   $emit(
                     'click-event',
@@ -37,7 +35,8 @@
               height: state.settingData.timeDivH + 'px',
               color: '#000'
             }">
-              <div v-for="n in state.dateCnt * 24" :key="n" class="sc-time" :style="{ width: state.timeDivW + 'px' }">
+              <div v-for="n in state.dateCnt * 24" :key="n" class="sc-time"
+                :style="{ width: state.timeDivW + 'px', background: '#3e9fff' }">
                 {{ getHeaderTime(n - 1) }} : 00
               </div>
             </div>
@@ -45,16 +44,14 @@
               <div v-for="(row, index) in  state.scheduleData " :key="index" :class="'timeline'"
                 :style="{ height: state.settingData.rowH + 'px', display: 'flex', width: '100%' }">
                 <unit-div v-for=" n  in  state.unitCnt " :key="'unit' + n" :row-index="index" :key-index="n"
-                  :row-data="row" :is-business="isBusiness(index, n - 1)" :is-selecting="state.isSelecting"
-                  :is-selecting-row-index="state.isSelectingRowIndex" :width="state.settingData.unitDivW + 'px'"
+                  :row-data="row" :is-business="isBusiness(index, n - 1)" :width="state.settingData.unitDivW + 'px'"
                   @mouse-down="selectStartTime" @mouse-up="selectEndTime"></unit-div>
                 <reserved-div v-for="( detail, keyNo ) in  row.schedule " :key="'res' + keyNo" :schedule-detail="detail"
                   :row-index="index" :key-no="keyNo" :start-text="detail.start" :end-text="detail.end"
                   :unit-width="state.settingData.unitDivW" :unit-height="state.settingData.rowH"
                   :title-div-width="state.settingData.titleDivW" :border-width="state.settingData.borderW"
                   :min-date="state.settingData.startDate" :max-date="state.settingData.endDate"
-                  :unit="state.settingData.unit" :clear-switch="state.clearSwitch" :is-selecting="state.isSelecting"
-                  :is-selecting-row-index="state.isSelectingRowIndex" :is-selecting-index="state.isSelectingIndex"
+                  :unit="state.settingData.unit" :clear-switch="state.clearSwitch"
                   @delete-schedule-data="deleteScheduleData" @mouse-up="selectEndTime" @click-event="
                     $emit(
                       'click-event',
@@ -69,7 +66,7 @@
         </div>
       </div>
       <div class="sc-rows"
-        :style="{ width: '3%', height: state.contentH + 'px', background: '#1eaeff', borderRadius: '5px' }">
+        :style="{ width: '3%', minWidth: '30px', height: state.contentH + 'px', background: '#1eaeff', borderRadius: '5px', marginLeft: '0px' }">
         <div
           :style="{ width: '100%', height: '20px', color: '#000', padding: '25px 5px', borderBottom: '2px solid #efefef' }">
           <span>day off</span>
@@ -125,7 +122,6 @@ export default defineComponent({
         this.selectedRows.push(index);
         this.state.scheduleData[index].schedule.length = 0;
         this.state.scheduleData[index].noBusinessDate = true;
-
       }
     }
   },
@@ -147,7 +143,7 @@ export default defineComponent({
         dateDivH: 25,
         borderW: 1, // Px 
         timeDivH: 24, // Px
-        unitDivW: (1.107 * props.setting.unit), // Px
+        unitDivW: (1.093 * props.setting.unit), // Px
         titleDivW: 7, // Percent
         rowH: 45, // Px
       },
@@ -198,7 +194,7 @@ export default defineComponent({
               end_minute = end_minute % 60;
             }
             end_str = end_hour + ":" + end_minute;
-            state.scheduleData[i].schedule.push({ start: formatedtoday + " " + item, end: formatedtoday + " " + end_str });
+            state.scheduleData[i].schedule.push({ start: `${formatedtoday} ${item}`, end: `${formatedtoday} ${end_str}` });
           }
         })
 
@@ -225,7 +221,7 @@ export default defineComponent({
       if (minutes < 10) {
         minutes = "0" + minutes;
       }
-      return year + "/" + month + "/" + date + " " + hours + ":" + minutes;
+      return `${year}/${month}/${date} ${hours}:${minutes}`;
     };
 
     const addMinutes = (dateObj, n) => {
@@ -448,11 +444,11 @@ export default defineComponent({
 .sc-main-scroll .sc-time {
   color: #000;
   padding: 4px 0;
-  line-height: 18px;
-  height: 18px;
+  line-height: 15px;
+  height: 15px;
   display: block;
   float: left;
-  border-right: solid 1px #ccc;
+  border-right: solid 1px #fff;
   text-align: center;
   font-size: 16px;
 }
@@ -475,12 +471,11 @@ export default defineComponent({
 .sc-bar {
   position: absolute;
   color: #fff;
-  background: #ff4800;
   cursor: pointer;
   z-index: 10;
-  box-shadow: 2px 2px 4px #333;
-  -moz-box-shadow: 2px 2px 4px #333;
-  -webkit-box-shadow: 2px 2px 4px #333;
+  box-shadow: 1px 1px 4px #333;
+  -moz-box-shadow: 1px 1px 4px #333;
+  -webkit-box-shadow: 1px 1px 4px #333;
 }
 
 .ui-draggable-dragging,
@@ -531,10 +526,6 @@ export default defineComponent({
 
 .cant-res {
   background-color: #999 !important;
-}
-
-.isMe {
-  background-color: #108000 !important;
 }
 
 .notMe {

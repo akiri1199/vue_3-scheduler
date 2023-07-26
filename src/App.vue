@@ -4,9 +4,11 @@
 
   </div>
 
-  <div :style="{ width: '500px' }">
+  <div :style="{
+    width: '1200px'
+  }">
     <ul>
-      <li v-for="(values, key) in state.items" :key="key">
+      <li v-for="(values, key) in state.result" :key="key">
         {{ key }}: {{ values.join(', ') }}
       </li>
     </ul>
@@ -18,10 +20,10 @@ import schedulerLite from "./components/schedulerLite";
 import { reactive } from 'vue';
 const setting = {
   unit: 15, //  it is division of hour set a among 1,2,3,4,5,6,8,9,10,12,15,16,18,20,24,30,32,36,40,45,48,60
-  locale: 'es-ES' // en-GB  or es-ES
+  locale: 'en-GB' // en-GB  or es-ES
 };
 const sampleData = {   // insert saved Json data
-
+  'Monday': ['00:00']
 };
 
 export default {
@@ -37,12 +39,12 @@ export default {
   },
   methods: {
     finishEvent(result_arr) {
-      this.state.items = result_arr;
+      this.state.result = result_arr;
     }
   },
   setup() {
     const state = reactive({
-      items: []
+      result: []
     });
     return { state };
   }

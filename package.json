@@ -15,7 +15,6 @@
     "mobile"
   ],
   "author": "Thomas Hook(vinusstar39@gmail.com)",
-  "license": "MIT",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve --openssl-legacy-provider",
